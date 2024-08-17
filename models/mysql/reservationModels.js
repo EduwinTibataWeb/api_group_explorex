@@ -6,36 +6,29 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 // Configurar la conexión a MySQL
-function handleDisconnect () {
-  const connection = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_DATABASE
-  })
-
-  connection.connect((err) => {
-    if (err) {
-      console.error('Error connecting to the database:', err)
-      setTimeout(handleDisconnect, 2000) // Intentar reconectar después de 2 segundos
-    } else {
-      console.log('Connected to the database.')
-    }
-  })
-
-  connection.on('error', (err) => {
-    console.error('Database error:', err)
-    if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-      handleDisconnect() // Reconectar automáticamente en caso de desconexión
-    } else {
-      throw err
-    }
-  })
-
-  return connection
+const config = {
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_DATABASE
 }
 
-const connection = handleDisconnect()
+// Crear una conexión a la base de datos
+let connection
+
+async function initializeConnection () {
+  try {
+    connection = await mysql.createConnection(config)
+    console.log('Connected to the database.')
+  } catch (err) {
+    console.error('Error connecting to the database:', err)
+    setTimeout(initializeConnection, 2000) // Intentar reconectar después de 2 segundos
+  }
+}
+
+// Inicializar la conexión
+initializeConnection()
+
 // Modelo de Reservas
 export class ReservationModels {
   // Obtener todas las reservas

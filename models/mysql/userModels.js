@@ -5,47 +5,39 @@ import dotenv from 'dotenv'
 
 // Cargar las variables de entorno desde el archivo .env
 dotenv.config()
+
 // Configurar la conexión a MySQL
-function handleDisconnect () {
-  const connection = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_DATABASE
-  })
-
-  connection.connect((err) => {
-    if (err) {
-      console.error('Error connecting to the database:', err)
-      setTimeout(handleDisconnect, 2000) // Intentar reconectar después de 2 segundos
-    } else {
-      console.log('Connected to the database.')
-    }
-  })
-
-  connection.on('error', (err) => {
-    console.error('Database error:', err)
-    if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-      handleDisconnect() // Reconectar automáticamente en caso de desconexión
-    } else {
-      throw err
-    }
-  })
-
-  return connection
+const config = {
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_DATABASE
 }
 
-const connection = handleDisconnect()
+// Crear una conexión a la base de datos
+let connection
 
-// Modelo de Reservas
+async function initializeConnection () {
+  try {
+    connection = await mysql.createConnection(config)
+    console.log('Connected to the database.')
+  } catch (err) {
+    console.error('Error connecting to the database:', err)
+    setTimeout(initializeConnection, 2000) // Intentar reconectar después de 2 segundos
+  }
+}
+
+// Inicializar la conexión
+initializeConnection()
+
+// Modelo de Usuarios
 export class UserModels {
-  // Obtener todas las reservas
-  static async getAll ({ genre }) {
+  // Obtener todos los usuarios
+  static async getAll () {
     try {
-      const [rows] = await connection.query('SELECT * FROM users')
+      const [rows] = await connection.execute('SELECT * FROM users')
       return rows
     } catch (error) {
-      console.error('entro')
       console.error(error)
       throw new Error('Error retrieving users')
     }
@@ -65,7 +57,7 @@ export class UserModels {
 
     try {
       console.log('Datos de entrada:', input)
-      const [result] = await connection.query(
+      const [result] = await connection.execute(
         `INSERT INTO users (username, password, email, created_at)
             VALUES (?, ?, ?, ?)`,
         [username, hashedPassword, email, created_at]
@@ -81,23 +73,22 @@ export class UserModels {
     }
   }
 
-  // Obtener una reserva por ID
+  // Obtener un usuario por ID
   static async getById (id) {
     try {
-      const [rows] = await connection.query('SELECT * FROM users WHERE id = ?', [id])
+      const [rows] = await connection.execute('SELECT * FROM users WHERE id = ?', [id])
       if (rows.length > 0) {
         return rows[0]
       } else {
-        throw new Error('Reservation not found')
+        throw new Error('User not found')
       }
     } catch (error) {
       console.error(error)
-      throw new Error('Error retrieving reservation')
+      throw new Error('Error retrieving user')
     }
   }
 
-  // Actualizar una reserva por ID
-  // Actualizar una reserva existente
+  // Actualizar un usuario por ID
   static async update ({ id, input }) {
     const {
       username,
@@ -107,15 +98,15 @@ export class UserModels {
     } = input
 
     try {
-      const [result] = await connection.query(
-                `UPDATE reservations 
-                    SET username = ?, password = ?, email = ?, created_at = ?
-                    WHERE id = ?`,
-                [username, password, email, created_at]
+      const [result] = await connection.execute(
+        `UPDATE users 
+            SET username = ?, password = ?, email = ?, created_at = ?
+            WHERE id = ?`,
+        [username, password, email, created_at, id]
       )
 
       if (result.affectedRows === 0) {
-        throw new Error('Reservation not found')
+        throw new Error('User not found')
       }
 
       return {
@@ -123,35 +114,37 @@ export class UserModels {
         ...input
       }
     } catch (e) {
-      throw new Error('Error updating reservation')
+      console.error('Error en UserModels.update:', e)
+      throw new Error('Error updating user')
     }
   }
 
-  // Eliminar una reserva por ID
+  // Eliminar un usuario por ID
   static async delete (id) {
-    // Verificar si la reserva existe
-    const [users] = await connection.query(
-      'SELECT * FROM users WHERE id = ?;',
+    // Verificar si el usuario existe
+    const [users] = await connection.execute(
+      'SELECT * FROM users WHERE id = ?',
       [id]
     )
 
     if (users.length === 0) {
-      return false // La reserva no existe
+      return false // El usuario no existe
     }
 
-    // Eliminar la reserva
-    await connection.query(
-      'DELETE FROM users WHERE id = ?;',
+    // Eliminar el usuario
+    await connection.execute(
+      'DELETE FROM users WHERE id = ?',
       [id]
     )
 
-    return true // La reserva fue eliminada
+    return true // El usuario fue eliminado
   }
 
+  // Iniciar sesión
   static async login ({ email, password }) {
     // Verificar si el usuario existe
-    const [users] = await connection.query(
-      'SELECT * FROM users WHERE email = ?;',
+    const [users] = await connection.execute(
+      'SELECT * FROM users WHERE email = ?',
       [email]
     )
 
