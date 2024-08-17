@@ -1,10 +1,10 @@
 ### Recuperar todas las reservas
 
-GET http://localhost:3001/api/reservation
+GET http://localhost:3308/api/reservation
 
 
 ### envia una reserva
-POST http://localhost:3001/api/reservation
+POST http://localhost:3308/api/reservation
 Content-Type: application/json
 
 {
@@ -68,7 +68,7 @@ Content-Type: application/json
 }
 
 ### envia una reserva
-POST https://api-group-explorex.vercel.app/api/login
+POST http://localhost:3308/api/login
 Content-Type: application/json
 
 {
@@ -81,7 +81,7 @@ DELETE http://localhost:3000/api/user/3
 
 ### Recuperar todas las reservas
 
-GET http://localhost:3308/api/user
+GET https://api-group-explorex.onrender.com/api/user
 
 
 ### Recuperar todas las pasajeros

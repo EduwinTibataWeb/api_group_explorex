@@ -1,63 +1,34 @@
 /* eslint-disable camelcase */
-import mysql from 'mysql2/promise'
 import bcrypt from 'bcrypt'
 import dotenv from 'dotenv'
+import connectToDatabase from '../../config/dbConnection.js'
 
-// Cargar las variables de entorno desde el archivo .env
 dotenv.config()
 
-// Configurar la conexión a MySQL
-const config = {
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_DATABASE
-}
-
-// Crear una conexión a la base de datos
-let connection
-
-async function initializeConnection () {
-  try {
-    connection = await mysql.createConnection(config)
-    console.log('Connected to the database.')
-  } catch (err) {
-    console.error('Error connecting to the database:', err)
-    setTimeout(initializeConnection, 2000) // Intentar reconectar después de 2 segundos
-  }
-}
-
-// Inicializar la conexión
-initializeConnection()
-
-// Modelo de Usuarios
 export class UserModels {
   // Obtener todos los usuarios
-  static async getAll () {
+  static async getAll ({ genre }) {
+    const connection = await connectToDatabase()
     try {
-      const [rows] = await connection.execute('SELECT * FROM users')
+      const [rows] = await connection.query('SELECT * FROM users')
       return rows
     } catch (error) {
       console.error(error)
       throw new Error('Error retrieving users')
+    } finally {
+      connection.release() // Libera la conexión de vuelta al pool
     }
   }
 
   // Crear un nuevo usuario
   static async create ({ input }) {
-    const {
-      username,
-      password,
-      email,
-      created_at
-    } = input
-
-    // Hashear la contraseña
+    const { username, password, email, created_at } = input
     const hashedPassword = await bcrypt.hash(password, 10)
 
+    const connection = await connectToDatabase()
     try {
       console.log('Datos de entrada:', input)
-      const [result] = await connection.execute(
+      const [result] = await connection.query(
         `INSERT INTO users (username, password, email, created_at)
             VALUES (?, ?, ?, ?)`,
         [username, hashedPassword, email, created_at]
@@ -70,13 +41,16 @@ export class UserModels {
     } catch (e) {
       console.error('Error en UserModels.create:', e)
       throw new Error('Error creating user')
+    } finally {
+      connection.release() // Libera la conexión de vuelta al pool
     }
   }
 
   // Obtener un usuario por ID
   static async getById (id) {
+    const connection = await connectToDatabase()
     try {
-      const [rows] = await connection.execute('SELECT * FROM users WHERE id = ?', [id])
+      const [rows] = await connection.query('SELECT * FROM users WHERE id = ?', [id])
       if (rows.length > 0) {
         return rows[0]
       } else {
@@ -85,23 +59,21 @@ export class UserModels {
     } catch (error) {
       console.error(error)
       throw new Error('Error retrieving user')
+    } finally {
+      connection.release() // Libera la conexión de vuelta al pool
     }
   }
 
   // Actualizar un usuario por ID
   static async update ({ id, input }) {
-    const {
-      username,
-      password,
-      email,
-      created_at
-    } = input
+    const { username, password, email, created_at } = input
+    const connection = await connectToDatabase()
 
     try {
-      const [result] = await connection.execute(
+      const [result] = await connection.query(
         `UPDATE users 
-            SET username = ?, password = ?, email = ?, created_at = ?
-            WHERE id = ?`,
+         SET username = ?, password = ?, email = ?, created_at = ?
+         WHERE id = ?`,
         [username, password, email, created_at, id]
       )
 
@@ -114,55 +86,65 @@ export class UserModels {
         ...input
       }
     } catch (e) {
-      console.error('Error en UserModels.update:', e)
+      console.error('Error updating user:', e)
       throw new Error('Error updating user')
+    } finally {
+      connection.release() // Libera la conexión de vuelta al pool
     }
   }
 
   // Eliminar un usuario por ID
   static async delete (id) {
-    // Verificar si el usuario existe
-    const [users] = await connection.execute(
-      'SELECT * FROM users WHERE id = ?',
-      [id]
-    )
+    const connection = await connectToDatabase()
 
-    if (users.length === 0) {
-      return false // El usuario no existe
+    try {
+      // Verificar si el usuario existe
+      const [users] = await connection.query('SELECT * FROM users WHERE id = ?;', [id])
+
+      if (users.length === 0) {
+        return false // El usuario no existe
+      }
+
+      // Eliminar el usuario
+      await connection.query('DELETE FROM users WHERE id = ?;', [id])
+
+      return true // El usuario fue eliminado
+    } catch (error) {
+      console.error('Error deleting user:', error)
+      throw new Error('Error deleting user')
+    } finally {
+      connection.release() // Libera la conexión de vuelta al pool
     }
-
-    // Eliminar el usuario
-    await connection.execute(
-      'DELETE FROM users WHERE id = ?',
-      [id]
-    )
-
-    return true // El usuario fue eliminado
   }
 
-  // Iniciar sesión
+  // Autenticación de usuario
   static async login ({ email, password }) {
-    // Verificar si el usuario existe
-    const [users] = await connection.execute(
-      'SELECT * FROM users WHERE email = ?',
-      [email]
-    )
+    const connection = await connectToDatabase()
 
-    if (users.length === 0) {
-      throw new Error('Email does not exist ' + email)
+    try {
+      // Verificar si el usuario existe
+      const [users] = await connection.query('SELECT * FROM users WHERE email = ?;', [email])
+
+      if (users.length === 0) {
+        throw new Error('Email does not exist ' + email)
+      }
+
+      const user = users[0]
+
+      // Comparar la contraseña proporcionada con la almacenada
+      const isValid = await bcrypt.compare(password, user.password)
+      if (!isValid) {
+        throw new Error('Password is invalid')
+      }
+
+      // Excluir el campo `password` del objeto `user` antes de retornarlo
+      const { password: _, ...publicUser } = user
+      return publicUser
+    } catch (error) {
+      console.error('Error logging in:', error)
+      throw new Error('Error logging in')
+    } finally {
+      connection.release() // Libera la conexión de vuelta al pool
     }
-
-    // Obtener el primer usuario (ya que `users` es un array)
-    const user = users[0]
-
-    // Comparar la contraseña proporcionada con la contraseña almacenada
-    const isValid = await bcrypt.compare(password, user.password)
-    if (!isValid) {
-      throw new Error('Password is invalid')
-    }
-
-    // Excluir el campo `password` del objeto `user` antes de retornarlo
-    const { password: _, ...publicUser } = user
-    return publicUser
   }
 }
