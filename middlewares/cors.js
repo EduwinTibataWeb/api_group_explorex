@@ -3,10 +3,10 @@ import cors from 'cors'
 export const corsMiddleware = () => cors({
   origin: (origin, callback) => {
     const ACCEPTED_ORIGINS = [
-      'https://www.groupexplorex.com/',
+      'https://www.groupexplorex.com',
       'http://localhost:3000',
       'http://localhost:3001',
-      process.env.APP_URL
+      '*'
     ]
 
     if (ACCEPTED_ORIGINS.includes(origin) || !origin) {
