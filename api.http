@@ -57,7 +57,7 @@ Content-Type: application/json
 DELETE http://localhost:3001/api/reservation/242e5f62-47ba-11ef-bfa3-00d8619e1091
 
 ### envia una reserva
-POST https://api-group-explorex.onrender.com/api/user
+POST http://localhost:3308/api/user
 Content-Type: application/json
 
 {
@@ -68,12 +68,12 @@ Content-Type: application/json
 }
 
 ### envia una reserva
-POST http://localhost:3308/api/login
+POST https://api-group-explorex.vercel.app/api/login
 Content-Type: application/json
 
 {
-  "password": "1234",
-  "email": "pruebasa2455@explorer.com"
+  "password": "Caliaji2024@",
+  "email": "pruebasa245ertter5@explorer.com"
 }
 ### eliminar
 
@@ -81,12 +81,12 @@ DELETE http://localhost:3000/api/user/3
 
 ### Recuperar todas las reservas
 
-GET http://localhost:3000/api/user
+GET http://localhost:3308/api/user
 
 
 ### Recuperar todas las pasajeros
 
-GET http://localhost:3001/api/passenger
+GET http://localhost:3308/api/passenger
 
 ### Recuperar todas las pasajeros
 
