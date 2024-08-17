@@ -57,18 +57,18 @@ Content-Type: application/json
 DELETE http://localhost:3001/api/reservation/242e5f62-47ba-11ef-bfa3-00d8619e1091
 
 ### envia una reserva
-POST http://localhost:3001/api/user
+POST https://api-group-explorex.onrender.com/api/user
 Content-Type: application/json
 
 {
-  "username": "prueba4245",
+  "username": "prueba4245ret",
   "password": "Caliaji2024@",
-  "email": "pruebasa2455@explorer.com",
+  "email": "pruebasa245ertter5@explorer.com",
   "created_at": "2024-07-20T23:23:01.000Z"
 }
 
 ### envia una reserva
-POST http://localhost:3001/api/login
+POST http://localhost:3308/api/login
 Content-Type: application/json
 
 {
