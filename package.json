@@ -6,7 +6,6 @@
   "type": "module",
   "scripts": {
     "start": "node --trace-warnings app.js",
-    "build": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
