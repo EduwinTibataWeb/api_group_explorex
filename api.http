@@ -1,0 +1,137 @@
+### Recuperar todas las reservas
+
+GET http://localhost:3001/api/reservation
+
+
+### envia una reserva
+POST http://localhost:3001/api/reservation
+Content-Type: application/json
+
+{
+    "first_name": "Eduwin Alejandro",
+    "last_name": "Tibatá Bolivar",
+    "email": "liyimajo@gmail.com",
+    "phone": "3232812574",
+    "type_travel": "Vacation",
+    "origin": "Bogotá",
+    "destination": "Cundinamarca",
+    "departure_date": "2024-07-31",
+    "return_date": "2024-08-07",
+    "number_days": 7,
+    "children_count": 2,
+    "adults_count": 1,
+    "aproximate_budget": 5000000,
+    "message": "21",
+    "created_at": "2024-07-31",
+    "user_id": 1,
+    "state": 1
+}
+
+### editar
+PATCH http://localhost:3001/api/reservation/0d9fc6d7-5426-11ef-9234-00d8619e1091
+Content-Type: application/json
+
+{
+    "id": "0d9fc6d7-5426-11ef-9234-00d8619e1091",
+    "user_id": 1,
+    "first_name": "Eduwin",
+    "last_name": "Bolivar",
+    "email": "pruebasa2455@explorer.COM",
+    "phone": "3232812574",
+    "type_travel": "one-way",
+    "origin": "Bogota",
+    "destination": "medellin",
+    "departure_date": "2024-08-07T05:00:00.000Z",
+    "return_date": "1899-11-30T04:56:16.000Z",
+    "number_days": 2,
+    "children_count": 1,
+    "adults_count": 1,
+    "aproximate_budget": 2000,
+    "message": "prueba",
+    "created_at": "2024-08-06T18:59:48.000Z",
+    "state": 1
+}
+
+### eliminar
+
+DELETE http://localhost:3001/api/reservation/242e5f62-47ba-11ef-bfa3-00d8619e1091
+
+### envia una reserva
+POST http://localhost:3001/api/user
+Content-Type: application/json
+
+{
+  "username": "prueba4245",
+  "password": "Caliaji2024@",
+  "email": "pruebasa2455@explorer.com",
+  "created_at": "2024-07-20T23:23:01.000Z"
+}
+
+### envia una reserva
+POST http://localhost:3001/api/login
+Content-Type: application/json
+
+{
+  "password": "1234",
+  "email": "pruebasa2455@explorer.com"
+}
+### eliminar
+
+DELETE http://localhost:3000/api/user/3
+
+### Recuperar todas las reservas
+
+GET http://localhost:3000/api/user
+
+
+### Recuperar todas las pasajeros
+
+GET http://localhost:3001/api/passenger
+
+### Recuperar todas las pasajeros
+
+GET http://localhost:3000/api/passenger/reservation/b38ec00c-507b-11ef-ab28-00d8619e1091
+
+### envia una reserva
+POST http://localhost:3001/api/passenger
+Content-Type: application/json
+
+{
+  "reservation_id": "242e5f62-47ba-11ef-bfa3-00d8619e1091",
+  "type": "adult",
+  "first_name": "Eduwin Alejandro",
+  "last_name": "Tibata",
+  "birth_date": "2014-07-16",
+  "gender": "male",
+  "nationality": "Colombia",
+  "created_at": "2024-07-24T13:21:19.000Z",
+  "id_item": "2"
+},
+{
+  "reservation_id": "242e5f62-47ba-11ef-bfa3-00d8619e1091",
+  "type": "adult",
+  "first_name": "Eduwin Alejandro",
+  "last_name": "Tibata",
+  "birth_date": "2014-07-16",
+  "gender": "male",
+  "nationality": "Colombia",
+  "created_at": "2024-07-24T13:21:19.000Z",
+  "id_item": "2"
+}
+### edita una reserva
+PATCH http://localhost:3000/api/passenger/da8251d6-4765-11ef-bfa3-00d8619e1091
+Content-Type: application/json
+
+{
+  "reservation_id": "ded246be-46ef-11ef-ad68-00d8619e1091",
+  "type": "adult",
+  "first_name": "Eduwin Montaña",
+  "last_name": "Tibata",
+  "birth_date": "2014-07-16T05:00:00.000Z",
+  "gender": "male",
+  "nationality": "Colombia",
+  "created_at": "2024-07-24T13:21:19.000Z"
+}
+
+### Elimina una reserva,
+DELETE http://localhost:3000/api/passenger/da8251d6-4765-11ef-bfa3-00d8619e1091
