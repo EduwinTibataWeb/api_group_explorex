@@ -11,6 +11,10 @@ app.use(cookieParser())
 // Usar el router
 app.use('/api', reservationRouter)
 
+app.get('/', (req, res) => {
+  res.send('¡Bienvenido a mi API!')
+})
+
 const PORT = process.env.PORT || 3001
 
 app.listen(PORT, () => {
