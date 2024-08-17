@@ -24,6 +24,7 @@ export class UserModels {
       const [rows] = await connection.query('SELECT * FROM users')
       return rows
     } catch (error) {
+      console.error('entro')
       console.error(error)
       throw new Error('Error retrieving users')
     }
