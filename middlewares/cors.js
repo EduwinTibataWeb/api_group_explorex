@@ -4,9 +4,8 @@ export const corsMiddleware = () => cors({
   origin: (origin, callback) => {
     const ACCEPTED_ORIGINS = [
       'https://www.groupexplorex.com',
-      'http://localhost:3000',
-      'http://localhost:3001',
-      '*'
+      'http://www.groupexplorex.com',
+      'www.groupexplorex.com'
     ]
 
     if (ACCEPTED_ORIGINS.includes(origin) || !origin) {
