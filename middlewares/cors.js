@@ -4,8 +4,11 @@ export const corsMiddleware = () => cors({
   origin: (origin, callback) => {
     const ACCEPTED_ORIGINS = [
       'https://www.groupexplorex.com',
+      'https://groupexplorex.com',
       'http://www.groupexplorex.com',
-      'www.groupexplorex.com'
+      'http://groupexplorex.com',
+      'www.groupexplorex.com',
+      'groupexplorex.com'
     ]
 
     if (ACCEPTED_ORIGINS.includes(origin) || !origin) {
